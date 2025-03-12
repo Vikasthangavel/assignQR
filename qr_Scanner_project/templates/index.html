@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 600px;
+            border: 2px solid black;
+        }
+
+        .input-container {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            width: 80%;
+            max-width: 400px;
+            padding: 10px;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        #loading-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>QR Code Scanner</h1>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="qr-canvas" hidden></canvas>
+
+    <div class="input-container">
+        <label>Old QR Code:</label>
+        <input type="text" id="oldQR" readonly>
+        <button onclick="startScanner('old')">Scan Old QR</button>
+    </div>
+
+    <div class="input-container">
+        <label>New QR Code:</label>
+        <input type="text" id="newQR" readonly>
+        <button onclick="startScanner('new')">Scan New QR</button>
+    </div>
+
+    <button onclick="updateQR()">Update Google Sheets</button>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div id="loading-container">
+            <img src="{{ url_for('static', filename='1490.gif') }}" width="50px" alt="Loading...">
+            <p>Updating... Please wait</p>
+        </div>
+    </div>
+
+    <p id="statusMessage"></p>
+
+    <script>
+        let video = document.getElementById("video");
+        let canvasElement = document.getElementById("qr-canvas");
+        let canvas = canvasElement.getContext("2d");
+        let scanning = false;
+        let scanType = "";
+        let stream = null;
+
+        async function startScanner(type) {
+            scanType = type;
+            scanning = true;
+            document.getElementById("statusMessage").innerText = "Scanning...";
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                video.play();
+                requestAnimationFrame(scanQRCode);
+            } catch (error) {
+                alert("Error accessing the camera: " + error);
+            }
+        }
+
+        function scanQRCode() {
+            if (!scanning) return;
+
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvasElement.width = video.videoWidth;
+                canvasElement.height = video.videoHeight;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+
+                let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+
+                if (code) {
+                    scanning = false;
+                    stopScanner();
+
+                    document.getElementById(scanType === "old" ? "oldQR" : "newQR").value = code.data;
+                    document.getElementById("statusMessage").innerText = "QR Code Scanned Successfully!";
+                } else {
+                    requestAnimationFrame(scanQRCode);
+                }
+            } else {
+                requestAnimationFrame(scanQRCode);
+            }
+        }
+
+        function stopScanner() {
+            if (stream) {
+                let tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        async function updateQR() {
+            let oldQR = document.getElementById("oldQR").value;
+            let newQR = document.getElementById("newQR").value;
+
+            if (!oldQR || !newQR) {
+                alert("Please scan both QR codes.");
+                return;
+            }
+
+            // Show loading overlay
+            document.getElementById("loading-overlay").style.display = "block";
+            document.getElementById("statusMessage").innerText = "Updating...";
+
+            let response = await fetch("/update_qr", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ oldQR, newQR })
+            });
+
+            let result = await response.json();
+            document.getElementById("statusMessage").innerText = result.message;
+
+            // Hide loading overlay
+            document.getElementById("loading-overlay").style.display = "none";
+
+            if (!result.error) {
+                document.getElementById("oldQR").value = "";
+                document.getElementById("newQR").value = "";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

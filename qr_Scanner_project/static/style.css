@@ -1,0 +1,74 @@
+/* Enhanced CSS for a More Attractive Design */
+
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styles */
+body {
+    background-color: #e9ecef; /* Light background */
+    color: #343a40; /* Dark text color */
+    font-family: 'Arial', sans-serif; /* Modern font */
+}
+
+/* Header Styles */
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #007bff; /* Primary color for header */
+}
+
+/* Input Styles */
+input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #007bff; /* Border color */
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Button Styles */
+button {
+    background: linear-gradient(90deg, #007bff, #0056b3); /* Gradient background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s, transform 0.3s; /* Smooth transition */
+}
+
+button:hover {
+    background: linear-gradient(90deg, #0056b3, #003d80); /* Darker gradient on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Label Styles */
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block; /* Block display for labels */
+}
+
+/* Container Styles */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white; /* White background for container */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #6c757d; /* Muted text color */
+}
