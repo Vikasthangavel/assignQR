@@ -93,7 +93,7 @@
         <button onclick="startScanner('new')">Scan New QR</button>
     </div>
 
-    <button onclick="updateQR()">Update Google Sheets</button>
+    <button onclick="updateQR()">Update Sheets</button>
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
@@ -138,7 +138,7 @@
 
                 let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
                 let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
-
+               
                 if (code) {
                     scanning = false;
                     stopScanner();
@@ -170,6 +170,11 @@
                 return;
             }
 
+            if (oldQR === newQR) {
+                alert("Old QR and new QR cannot be the same.");
+                return;
+            }
+
             // Show loading overlay
             document.getElementById("loading-overlay").style.display = "block";
             document.getElementById("statusMessage").innerText = "Updating...";
@@ -189,7 +194,7 @@
             if (!result.error) {
                 document.getElementById("oldQR").value = "";
                 document.getElementById("newQR").value = "";
-            }
+            } alert("QR Codes updated successfully!");
         }
     </script>
 
