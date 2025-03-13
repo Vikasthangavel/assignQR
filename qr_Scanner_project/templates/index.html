@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
+
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
@@ -12,21 +13,39 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
+            position: relative;
         }
-
+        
+        #logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 300px;
+            background-color: #102f51c7;
+             /* Adjust as needed */
+        }
+        
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Ensures content stays centered */
+        }
+        
         #video {
             width: 100%;
             max-width: 600px;
             border: 2px solid black;
         }
-
+        
         .input-container {
             margin: 15px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
+        
         input {
             width: 80%;
             max-width: 400px;
@@ -35,7 +54,7 @@
             text-align: center;
             margin-top: 5px;
         }
-
+        
         button {
             padding: 10px 20px;
             margin-top: 10px;
@@ -46,11 +65,11 @@
             color: white;
             border-radius: 5px;
         }
-
+        
         button:hover {
             background: #0056b3;
         }
-
+        
         #loading-overlay {
             display: none;
             position: fixed;
@@ -61,7 +80,7 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
         }
-
+        
         #loading-container {
             position: absolute;
             top: 50%;
@@ -71,13 +90,13 @@
             color: white;
             font-size: 18px;
         }
-    </style>
+</style>
 </head>
 
 <body>
 
     <h1>QR Code Scanner</h1>
-
+    <img src="https://dakshaa.ksrct.ac.in/assets/logo1-if5MZuqt.png" alt="KSRCT Logo" id="logo">
     <video id="video" autoplay playsinline></video>
     <canvas id="qr-canvas" hidden></canvas>
 
