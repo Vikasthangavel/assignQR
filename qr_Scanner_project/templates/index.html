@@ -12,64 +12,85 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             position: relative;
+            background-color: #f4f4f4;
         }
-        
+    
+        #header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+    
         #logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 300px;
-            background-color: #102f51c7;
-             /* Adjust as needed */
+            width: 120px;
+            background-color: rgba(16, 47, 81, 0.78);
+            padding: 5px;
+            border-radius: 8px;
         }
-        
+    
+        h1 {
+            font-size: 22px;
+            color: #333;
+            margin-left: 10px;
+        }
+    
         #content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh; /* Ensures content stays centered */
+            min-height: 100vh;
+            padding: 20px;
         }
-        
+    
         #video {
             width: 100%;
-            max-width: 600px;
-            border: 2px solid black;
+            max-width: 500px;
+            border: 3px solid #007BFF;
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
         }
-        
+    
         .input-container {
-            margin: 15px 0;
+            margin: 10px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
-        
+    
         input {
-            width: 80%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 350px;
             padding: 10px;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
             margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
-        
+    
         button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            font-size: 16px;
+            padding: 8px 16px;
+            margin-top: 8px;
+            font-size: 14px;
             cursor: pointer;
             border: none;
             background: #007BFF;
             color: white;
             border-radius: 5px;
+            transition: background 0.3s;
         }
-        
+    
         button:hover {
             background: #0056b3;
         }
-        
+    
         #loading-overlay {
             display: none;
             position: fixed;
@@ -80,7 +101,7 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
         }
-        
+    
         #loading-container {
             position: absolute;
             top: 50%;
@@ -90,7 +111,30 @@
             color: white;
             font-size: 18px;
         }
-</style>
+    
+        @media (max-width: 768px) {
+            #logo {
+                width: 100px;
+            }
+    
+            h1 {
+                font-size: 18px;
+            }
+    
+            input {
+                width: 100%;
+            }
+    
+            button {
+                width: auto;
+                padding: 6px 12px;
+            }
+    
+            #video {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
