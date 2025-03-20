@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import requests
-import winsound
+
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Needed for session management
 
@@ -9,11 +9,6 @@ SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWPKsdxUe3ydXr4uYScFcq96z
 
 # Dummy credentials for login
 USER_CREDENTIALS = {"admin": "ksrct"}
-def play_success_sound():
-    winsound.MessageBeep(winsound.MB_OK)  # Default success sound
-
-def play_error_sound():
-    winsound.MessageBeep(winsound.MB_ICONHAND)  # Default error sound
 
 @app.route("/")
 def home():
@@ -43,7 +38,7 @@ def logout():
 @app.route("/update_qr", methods=["POST"])
 def update_qr():
     if "user" not in session:
-        play_error_sound()
+        
         return jsonify({"error": "Unauthorized access"}), 403
 
     data = request.json
@@ -51,20 +46,19 @@ def update_qr():
     new_qr = data.get("newQR")
     print(old_qr, new_qr)
     if not old_qr or not new_qr:
-        play_error_sound()
+        
         return jsonify({"error": "Please scan both QR codes."}), 400
        
     if old_qr == new_qr:
-        play_error_sound()
         return jsonify({"error": "Old QR and new QR cannot be the same."}), 400
     params = {"oldQR": old_qr, "newQR": new_qr}
     response = requests.get(SCRIPT_URL, params=params)
 
     if response.status_code == 200:
-        play_success_sound()
+        
         return jsonify({"message": f"Updated QR Code for {old_qr} -> {new_qr}"})
     else:
-        play_error_sound()
+        
         return jsonify({"error": "Failed to update QR code. Please try again."}), 500
 
 if __name__ == "__main__":
