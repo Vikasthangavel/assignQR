@@ -193,20 +193,28 @@
 
         function scanQRCode() {
             if (!scanning) return;
-
+        
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 canvasElement.width = video.videoWidth;
                 canvasElement.height = video.videoHeight;
                 canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-
+        
                 let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
                 let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
-               
+        
                 if (code) {
                     scanning = false;
                     stopScanner();
-
-                    document.getElementById(scanType === "old" ? "oldQR" : "newQR").value = code.data;
+        
+                    let scannedData = code.data;
+                    let mobileNumber = extractMobileNumber(scannedData);
+                    
+                    if (scanType === "old") {
+                        document.getElementById("oldQR").value = mobileNumber || "Not found";
+                    } else {
+                        document.getElementById("newQR").value = scannedData;
+                    }
+        
                     document.getElementById("statusMessage").innerText = "QR Code Scanned Successfully!";
                 } else {
                     requestAnimationFrame(scanQRCode);
@@ -215,6 +223,13 @@
                 requestAnimationFrame(scanQRCode);
             }
         }
+        
+        // Function to extract mobile number from QR code data
+        function extractMobileNumber(qrData) {
+            let match = qrData.match(/Mobile:\s*(\d{10})/); // Extracts a 10-digit mobile number
+            return match ? match[1] : null;
+        }
+        
 
         function stopScanner() {
             if (stream) {
