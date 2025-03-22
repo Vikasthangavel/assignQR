@@ -1,146 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
-
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 0;
-            position: relative;
             background-color: #f4f4f4;
         }
-    
-        #header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
-    
-        #logo {
-            width: 120px;
-            background-color: rgba(16, 47, 81, 0.78);
-            padding: 5px;
-            border-radius: 8px;
-        }
-    
-        h1 {
-            font-size: 22px;
-            color: #333;
-            margin-left: 10px;
-        }
-    
-        #content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-    
+        h1 { color: #333; }
         #video {
             width: 100%;
             max-width: 500px;
             border: 3px solid #007BFF;
             border-radius: 10px;
-            position: relative;
-            z-index: 1;
         }
-    
         .input-container {
             margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
         }
-    
         input {
             width: 90%;
             max-width: 350px;
             padding: 10px;
             font-size: 14px;
             text-align: center;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
         }
-    
         button {
             padding: 8px 16px;
-            margin-top: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
             background: #007BFF;
             color: white;
+            border: none;
             border-radius: 5px;
-            transition: background 0.3s;
+            cursor: pointer;
         }
-    
         button:hover {
             background: #0056b3;
         }
-    
-        #loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-    
-        #loading-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            font-size: 18px;
-        }
-    
-        @media (max-width: 768px) {
-            #logo {
-                width: 100px;
-            }
-    
-            h1 {
-                font-size: 18px;
-            }
-    
-            input {
-                width: 100%;
-            }
-    
-            button {
-                width: auto;
-                padding: 6px 12px;
-            }
-    
-            #video {
-                max-width: 100%;
-            }
-        }
     </style>
 </head>
-
 <body>
 
     <h1>QR Code Scanner</h1>
-    <img src="https://dakshaa.ksrct.ac.in/assets/logo1-if5MZuqt.png" alt="KSRCT Logo" id="logo">
     <video id="video" autoplay playsinline></video>
     <canvas id="qr-canvas" hidden></canvas>
 
@@ -157,14 +62,6 @@
     </div>
 
     <button onclick="updateQR()">Update Sheets</button>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div id="loading-container">
-            <img src="{{ url_for('static', filename='1490.gif') }}" width="50px" alt="Loading...">
-            <p>Updating... Please wait</p>
-        </div>
-    </div>
 
     <p id="statusMessage"></p>
 
@@ -191,30 +88,41 @@
             }
         }
 
+        function extractMobileNumber(qrData) {
+            let match = qrData.match(/(?:Mobile|Phone):?\s*(\d{10})/i); 
+            return match ? match[1] : "Not found";
+        }
+
+        function extractEventName(qrData) {
+            let match = qrData.match(/(?:Event Type)\s*:?[\s]*([^\n]+)/i);
+            return match ? match[1].trim() : "Not found"; 
+        }
+        
         function scanQRCode() {
             if (!scanning) return;
-        
+
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 canvasElement.width = video.videoWidth;
                 canvasElement.height = video.videoHeight;
                 canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-        
+
                 let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
                 let code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
-        
+
                 if (code) {
                     scanning = false;
                     stopScanner();
-        
+
                     let scannedData = code.data;
                     let mobileNumber = extractMobileNumber(scannedData);
+                    let eventName = extractEventName(scannedData);
                     
                     if (scanType === "old") {
-                        document.getElementById("oldQR").value = mobileNumber || "Not found";
+                        document.getElementById("oldQR").value = `${mobileNumber} - ${eventName}`;
                     } else {
                         document.getElementById("newQR").value = scannedData;
                     }
-        
+
                     document.getElementById("statusMessage").innerText = "QR Code Scanned Successfully!";
                 } else {
                     requestAnimationFrame(scanQRCode);
@@ -223,13 +131,6 @@
                 requestAnimationFrame(scanQRCode);
             }
         }
-        
-        // Function to extract mobile number from QR code data
-        function extractMobileNumber(qrData) {
-            let match = qrData.match(/Mobile:\s*(\d{10})/); // Extracts a 10-digit mobile number
-            return match ? match[1] : null;
-        }
-        
 
         function stopScanner() {
             if (stream) {
@@ -253,8 +154,6 @@
                 return;
             }
 
-            // Show loading overlay
-            document.getElementById("loading-overlay").style.display = "block";
             document.getElementById("statusMessage").innerText = "Updating...";
 
             let response = await fetch("/update_qr", {
@@ -264,18 +163,11 @@
             });
 
             let result = await response.json();
-            document.getElementById("statusMessage").innerText = result.message;
+            document.getElementById("statusMessage").innerText = result.message || result.error;
 
-            // Hide loading overlay
-            document.getElementById("loading-overlay").style.display = "none";
-
-            if (!result.error) {
-                document.getElementById("oldQR").value = "";
-                document.getElementById("newQR").value = "";
-            } alert("QR Codes updated successfully!");
+            alert(result.message || result.error);
         }
     </script>
 
 </body>
-
 </html>
