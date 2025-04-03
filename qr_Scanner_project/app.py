@@ -5,10 +5,10 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Needed for session management
 
 # Google Apps Script Web App URL
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFL8Qh2G7ySCZ1uSyfihKZJI0XL7de6dMmN0TKZQxzrlixQ5Y625MRv0243JfgRHcN/exec"
+SCRIPT_URL = "https://script.google.com/macros/s//exec"
 
 # Dummy credentials for login
-USER_CREDENTIALS = {"admin": "ksrct"}
+USER_CREDENTIALS = {"admin": "admin"}
 
 @app.route("/")
 def home():
